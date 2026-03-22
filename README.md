@@ -1,5 +1,6 @@
 # ShopWave - Product Management REST API
 
+**Name:** Yeab Samuel  
 **Student Number:** ATE/9305/14  
 **Module:** SE 4801 – Enterprise Application Development
 
@@ -12,11 +13,9 @@
 ```bash
 ./mvnw spring-boot:run
 ```
-
-App starts on http://localhost:8080
+App starts on http://localhost:8080. Sample data (products and categories) is loaded automatically on startup via DataLoader.
 
 ## API Endpoints
-
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | /api/products | List all products (paginated) |
@@ -33,4 +32,7 @@ App starts on http://localhost:8080
 ## H2 Console
 http://localhost:8080/h2-console  
 JDBC URL: `jdbc:h2:mem:shopwavedb`
+
+## AI Disclosure
+This project was developed with AI assistance (Claude by Anthropic) for code structure guidance and debugging. All code was reviewed, understood, and verified by the student.
 ```
