@@ -4,6 +4,7 @@ package com.shopwave.service;
 import com.shopwave.dto.CreateProductRequest;
 import com.shopwave.dto.ProductDTO;
 import com.shopwave.exception.ProductNotFoundException;
+import com.shopwave.mapper.ProductMapper;
 import com.shopwave.model.Category;
 import com.shopwave.model.Product;
 import com.shopwave.repository.ProductRepository;
@@ -19,9 +20,11 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
+        this.productMapper = productMapper;
     }
 
     public ProductDTO createProduct(CreateProductRequest request) {
@@ -33,18 +36,18 @@ public class ProductService {
                 .category(request.categoryId() != null ?
                         Category.builder().id(request.categoryId()).build() : null)
                 .build();
-        return toDTO(productRepository.save(product));
+        return productMapper.toDTO(productRepository.save(product));
     }
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable).map(this::toDTO);
+        return productRepository.findAll(pageable).map(productMapper::toDTO);
     }
 
     @Transactional(readOnly = true)
     public ProductDTO getProductById(Long id) {
         return productRepository.findById(id)
-                .map(this::toDTO)
+                .map(productMapper::toDTO)
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
@@ -54,16 +57,16 @@ public class ProductService {
             return productRepository.findByNameContainingIgnoreCase(keyword)
                     .stream()
                     .filter(p -> p.getPrice().compareTo(maxPrice) <= 0)
-                    .map(this::toDTO)
+                    .map(productMapper::toDTO)
                     .toList();
         } else if (keyword != null) {
             return productRepository.findByNameContainingIgnoreCase(keyword)
-                    .stream().map(this::toDTO).toList();
+                    .stream().map(productMapper::toDTO).toList();
         } else if (maxPrice != null) {
             return productRepository.findByPriceLessThanEqual(maxPrice)
-                    .stream().map(this::toDTO).toList();
+                    .stream().map(productMapper::toDTO).toList();
         }
-        return productRepository.findAll().stream().map(this::toDTO).toList();
+        return productRepository.findAll().stream().map(productMapper::toDTO).toList();
     }
 
     public ProductDTO updateStock(Long id, int delta) {
@@ -74,18 +77,6 @@ public class ProductService {
             throw new IllegalArgumentException("Stock cannot go negative");
         }
         product.setStock(newStock);
-        return toDTO(productRepository.save(product));
-    }
-
-    private ProductDTO toDTO(Product p) {
-        return new ProductDTO(
-                p.getId(),
-                p.getName(),
-                p.getDescription(),
-                p.getPrice(),
-                p.getStock(),
-                p.getCategory() != null ? p.getCategory().getName() : null,
-                p.getCreatedAt()
-        );
+        return productMapper.toDTO(productRepository.save(product));
     }
 }

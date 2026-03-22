@@ -4,6 +4,7 @@ package com.shopwave;
 import com.shopwave.dto.CreateProductRequest;
 import com.shopwave.dto.ProductDTO;
 import com.shopwave.exception.ProductNotFoundException;
+import com.shopwave.mapper.ProductMapper;
 import com.shopwave.model.Product;
 import com.shopwave.repository.ProductRepository;
 import com.shopwave.service.ProductService;
@@ -24,6 +25,9 @@ class ProductServiceTest {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private ProductMapper productMapper;
+
     @InjectMocks
     private ProductService productService;
 
@@ -31,7 +35,10 @@ class ProductServiceTest {
     void createProduct_happyPath() {
         Product saved = Product.builder()
                 .id(1L).name("Laptop").price(BigDecimal.valueOf(999)).stock(10).build();
+        ProductDTO dto = new ProductDTO(1L, "Laptop", null, BigDecimal.valueOf(999), 10, null, null);
+
         when(productRepository.save(any())).thenReturn(saved);
+        when(productMapper.toDTO(saved)).thenReturn(dto);
 
         CreateProductRequest req = new CreateProductRequest(
                 "Laptop", "A laptop", BigDecimal.valueOf(999), 10, null);
